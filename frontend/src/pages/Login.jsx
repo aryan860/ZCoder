@@ -8,12 +8,26 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email && password) {
-      login({ email });
-      alert("Logged in successfully (simulated)");
-      navigate('/profile');
+
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        login({ email: data.user.email });
+        localStorage.setItem('zcoder-user-token', data.token);
+        navigate('/profile');
+      } else {
+        alert(data.message || "Login failed");
+      }
+    } catch (err) {
+      alert("Error logging in");
     }
   };
 

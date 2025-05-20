@@ -6,55 +6,27 @@ const Navbar = () => {
   const { user, logout } = useAuth();
 
   return (
-    <nav style={styles.nav}>
-      <Link style={styles.link} to="/">ZCoder</Link>
-      <div>
-        <Link style={styles.link} to="/problems">Problems</Link>
-        <Link style={styles.link} to="/editor">Editor</Link>
-        <Link style={styles.link} to="/rooms">Rooms</Link>
-        <Link style={styles.link} to="/profile">Profile</Link>
+    <nav>
+      <Link to="/" style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>ZCoder</Link>
+      <div className="nav-right">
+        <Link to="/problems">Problems</Link>
+        <Link to="/editor">Editor</Link>
+        <Link to="/rooms">Rooms</Link>
+        <Link to="/profile">Profile</Link>
         {user ? (
           <>
-            <span style={styles.userEmail}>{user.email}</span>
-            <button onClick={logout} style={styles.logoutButton}>Logout</button>
+            <span style={{ color: '#ccc', marginLeft: '1rem' }}>{user.email}</span>
+            <button onClick={logout} style={{ marginLeft: '1rem', background: 'none', color: 'red' }}>Logout</button>
           </>
         ) : (
           <>
-            <Link style={styles.link} to="/login">Login</Link>
-            <Link style={styles.link} to="/signup">Signup</Link>
+            <Link to="/login">Login</Link>
+            <Link to="/signup">Signup</Link>
           </>
         )}
       </div>
     </nav>
   );
-};
-
-const styles = {
-  nav: {
-    padding: '10px 20px',
-    background: '#282c34',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    color: '#fff'
-  },
-  link: {
-    marginLeft: '15px',
-    textDecoration: 'none',
-    color: '#61dafb'
-  },
-  logoutButton: {
-    marginLeft: '15px',
-    background: 'transparent',
-    color: '#ff4d4d',
-    border: 'none',
-    cursor: 'pointer',
-    fontWeight: 'bold'
-  },
-  userEmail: {
-    marginLeft: '15px',
-    color: '#fff'
-  }
 };
 
 export default Navbar;
