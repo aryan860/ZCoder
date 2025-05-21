@@ -15,6 +15,8 @@ app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/problems', require('./routes/problems'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/bookmarks', require('./routes/bookmarks'));
 
 const server = http.createServer(app);
 const io = new Server(server, {

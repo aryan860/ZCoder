@@ -2,15 +2,23 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <div className="container">
       <h2>Your Profile</h2>
       {user ? (
-        <div className="message-box">
+        <div>
           <p>Email: <strong>{user.email}</strong></p>
-          <p>Bookmarks and activity will be shown here.</p>
+          <h3>Bookmarked Problems:</h3>
+          <ul>
+            {user.bookmarks.map(id => (
+              <li key={id}>
+                <a href={`/problems/${id}`}>{id}</a>
+              </li>
+            ))}
+          </ul>
+          <button onClick={logout}>Logout</button>
         </div>
       ) : (
         <p>Please log in to view your profile.</p>

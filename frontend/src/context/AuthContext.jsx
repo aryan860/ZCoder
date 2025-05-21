@@ -3,24 +3,57 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    // Check if user is already stored
-    const savedUser = localStorage.getItem('zcoder-user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('zcoder-user', JSON.stringify(userData));
+  const login = async () => {
+    const token = localStorage.getItem('zcoder-user-token');
+    if (!token) return;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error('Invalid token');
+
+      const profile = await res.json();
+
+      setUser({
+        email: profile.email,
+        bookmarks: profile.bookmarks.map(p => p._id),
+      });
+    } catch (error) {
+      console.error('Login error:', error.message);
+      setUser(null);
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('zcoder-user-token');
     setUser(null);
-    localStorage.removeItem('zcoder-user');
   };
 
+  const toggleBookmark = async (problemId) => {
+    const token = localStorage.getItem('zcoder-user-token');
+    const res = await fetch(`http://localhost:5000/api/users/bookmark/${problemId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    setUser(prev => ({ ...prev, bookmarks: data.bookmarks }));
+  };
+
+  const isBookmarked = (id) => user?.bookmarks?.includes(id);
+
+  useEffect(() => {
+    login();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, toggleBookmark, isBookmarked }}>
       {children}
     </AuthContext.Provider>
   );

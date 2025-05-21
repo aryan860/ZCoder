@@ -1,84 +1,84 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const allProblems = [
+  {
+    _id: '1',
+    title: 'Two Sum',
+    description: 'Given an array of integers, return indices of the two numbers such that they add up to a specific target.',
+    tags: ['Array', 'HashMap']
+  },
+  {
+    _id: '2',
+    title: 'Longest Palindromic Substring',
+    description: 'Find the longest palindromic substring in the given string.',
+    tags: ['DP', 'String']
+  },
+  {
+    _id: '3',
+    title: 'Median of Two Sorted Arrays',
+    description: 'Find the median of two sorted arrays of different sizes.',
+    tags: ['Binary Search', 'Divide and Conquer']
+  }
+];
 
 const Problem = () => {
-  const [problems, setProblems] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { toggleBookmark, isBookmarked } = useAuth();
 
-  useEffect(() => {
-    const fetchProblems = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/problems');
-        const data = await res.json();
-        setProblems(data);
-      } catch (err) {
-        console.error("Failed to fetch problems:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProblems();
-  }, []);
-
-  const tags = [...new Set(problems.flatMap(p => p.tags))];
-
+  const tags = [...new Set(allProblems.flatMap(p => p.tags))];
   const filteredProblems = selectedTag
-    ? problems.filter(p => p.tags.includes(selectedTag))
-    : problems;
+    ? allProblems.filter(p => p.tags.includes(selectedTag))
+    : allProblems;
 
   return (
-    <div style={styles.container}>
+    <div className="container">
       <h2>📚 Coding Problems</h2>
 
-      {loading ? (
-        <p>Loading problems...</p>
-      ) : (
-        <>
-          <div style={styles.tagBar}>
-            <button
-              style={selectedTag === null ? styles.activeTag : styles.tag}
-              onClick={() => setSelectedTag(null)}
-            >
-              All
-            </button>
-            {tags.map(tag => (
-              <button
-                key={tag}
-                style={selectedTag === tag ? styles.activeTag : styles.tag}
-                onClick={() => setSelectedTag(tag)}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
+      <div style={styles.tagBar}>
+        <button
+          style={selectedTag === null ? styles.activeTag : styles.tag}
+          onClick={() => setSelectedTag(null)}
+        >
+          All
+        </button>
+        {tags.map(tag => (
+          <button
+            key={tag}
+            style={selectedTag === tag ? styles.activeTag : styles.tag}
+            onClick={() => setSelectedTag(tag)}
+          >
+            {tag}
+          </button>
+        ))}
+      </div>
 
-          <ul style={styles.list}>
-            {filteredProblems.map(problem => (
-              <li key={problem._id} style={styles.card}>
-                <div style={{ flex: 1 }}>
-                  <h3>{problem.title}</h3>
-                  <p>Tags: {problem.tags.join(', ')}</p>
-                </div>
-                <div style={styles.actions}>
-                  <Link to={`/editor?problemId=${problem._id}`} style={styles.button}>
-                    Solve
-                  </Link>
-                  <button style={styles.bookmarkBtn}>🔖</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <ul style={styles.list}>
+        {filteredProblems.map(problem => (
+          <li key={problem._id} style={styles.card}>
+            <div style={{ flex: 1 }}>
+              <h3>{problem.title}</h3>
+              <p><em>{problem.description}</em></p>
+              <p>Tags: {problem.tags.join(', ')}</p>
+            </div>
+            <div style={styles.actions}>
+              <Link to={`/problems/${problem._id}`} style={styles.button}>View</Link>
+              <button
+                style={styles.bookmarkBtn}
+                onClick={() => toggleBookmark(problem._id)}
+              >
+                {isBookmarked(problem._id) ? '🔖' : '📑'}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
 const styles = {
-  container: {
-    padding: '2rem'
-  },
   tagBar: {
     marginBottom: '1rem',
     display: 'flex',
@@ -86,17 +86,18 @@ const styles = {
     flexWrap: 'wrap'
   },
   tag: {
-    padding: '5px 12px',
-    background: '#eee',
-    border: 'none',
+    padding: '6px 14px',
+    background: '#2d2d2d',
+    border: '1px solid #444',
     borderRadius: '20px',
+    color: '#00bcd4',
+    fontWeight: 'bold',
     cursor: 'pointer'
   },
   activeTag: {
-    padding: '5px 12px',
-    background: '#282c34',
-    color: '#fff',
-    border: 'none',
+    padding: '6px 14px',
+    background: '#00bcd4',
+    color: '#000',
     borderRadius: '20px',
     fontWeight: 'bold'
   },
@@ -110,10 +111,10 @@ const styles = {
   card: {
     display: 'flex',
     justifyContent: 'space-between',
-    background: '#f9f9f9',
+    background: 'var(--card)',
     padding: '1rem',
     borderRadius: '8px',
-    boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
   },
   actions: {
     display: 'flex',
@@ -122,17 +123,19 @@ const styles = {
     gap: '0.5rem'
   },
   button: {
-    background: '#61dafb',
+    background: '#00bcd4',
     color: '#000',
     padding: '5px 10px',
     textDecoration: 'none',
-    borderRadius: '5px'
+    borderRadius: '4px',
+    fontWeight: 'bold'
   },
   bookmarkBtn: {
     background: 'transparent',
     border: 'none',
-    fontSize: '1.2rem',
-    cursor: 'pointer'
+    fontSize: '1.4rem',
+    cursor: 'pointer',
+    color: 'var(--text)'
   }
 };
 
