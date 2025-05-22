@@ -1,36 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const allProblems = [
-  {
-    _id: '1',
-    title: 'Two Sum',
-    description: 'Given an array of integers, return indices of the two numbers such that they add up to a specific target.',
-    tags: ['Array', 'HashMap']
-  },
-  {
-    _id: '2',
-    title: 'Longest Palindromic Substring',
-    description: 'Find the longest palindromic substring in the given string.',
-    tags: ['DP', 'String']
-  },
-  {
-    _id: '3',
-    title: 'Median of Two Sorted Arrays',
-    description: 'Find the median of two sorted arrays of different sizes.',
-    tags: ['Binary Search', 'Divide and Conquer']
-  }
-];
-
 const Problem = () => {
+  const [problems, setProblems] = useState([]);
   const [selectedTag, setSelectedTag] = useState(null);
   const { toggleBookmark, isBookmarked } = useAuth();
 
-  const tags = [...new Set(allProblems.flatMap(p => p.tags))];
+  useEffect(() => {
+    fetch('http://localhost:5000/api/problems')
+      .then(res => res.json())
+      .then(data => setProblems(data))
+      .catch(err => console.error('Failed to fetch problems', err));
+  }, []);
+
+  const tags = [...new Set(problems.flatMap(p => p.tags))];
+
   const filteredProblems = selectedTag
-    ? allProblems.filter(p => p.tags.includes(selectedTag))
-    : allProblems;
+    ? problems.filter(p => p.tags.includes(selectedTag))
+    : problems;
 
   return (
     <div className="container">
@@ -63,7 +51,7 @@ const Problem = () => {
               <p>Tags: {problem.tags.join(', ')}</p>
             </div>
             <div style={styles.actions}>
-              <Link to={`/problems/${problem._id}`} style={styles.button}>View</Link>
+              <Link to={`/problems/${problem.slug}`} style={styles.button}>View</Link>
               <button
                 style={styles.bookmarkBtn}
                 onClick={() => toggleBookmark(problem._id)}

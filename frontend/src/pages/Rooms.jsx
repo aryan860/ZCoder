@@ -1,125 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react';
 
 const Rooms = () => {
-  const { user } = useAuth();
-  const [room, setRoom] = useState('');
-  const [joinedRoom, setJoinedRoom] = useState('');
-  const [message, setMessage] = useState('');
-  const [chat, setChat] = useState([]);
-  const [socket, setSocket] = useState(null);
-
-  useEffect(() => {
-    if (user) {
-      const newSocket = io('http://localhost:5000', {
-        auth: {
-          token: localStorage.getItem('zcoder-user-token')
-        }
-      });
-      setSocket(newSocket);
-
-      newSocket.on('receive_message', data => {
-        setChat(prev => [...prev, data]);
-      });
-
-      return () => newSocket.disconnect();
-    }
-  }, [user]);
-
-  if (!socket) {
-    return <p style={{ padding: '2rem' }}>Please log in to join a room.</p>;
-  }
-
-  const joinRoom = () => {
-    if (room.trim()) {
-      socket.emit('join_room', room);
-      setJoinedRoom(room);
-      setChat([]);
-    }
-  };
-
-  const sendMessage = () => {
-    if (message.trim()) {
-      socket.emit('send_message', { room, message });
-      setMessage('');
-    }
-  };
+  const [rooms] = useState([
+    { name: 'DP Discussions' },
+    { name: 'Graph Theory' },
+    { name: 'Beginner Room' },
+    { name: 'JavaScript Coders' },
+    { name: 'System Design' }
+  ]);
 
   return (
-    <div style={styles.container}>
+    <div className="container">
       <h2>💬 Interactive Rooms</h2>
-
-      {!joinedRoom ? (
-        <div style={styles.joinBox}>
-          <input
-            type="text"
-            placeholder="Enter room ID"
-            value={room}
-            onChange={(e) => setRoom(e.target.value)}
-            style={styles.input}
-          />
-          <button onClick={joinRoom} style={styles.button}>Join Room</button>
-        </div>
-      ) : (
-        <div>
-          <p>Joined room: <strong>{joinedRoom}</strong></p>
-          <div style={styles.chatBox}>
-            {chat.map((msg, i) => (
-              <div key={i} style={styles.message}>
-                <strong>{msg.user.slice(0, 5)}</strong>: {msg.message}
-              </div>
-            ))}
+      <div style={styles.roomList}>
+        {rooms.map((room, i) => (
+          <div key={i} style={styles.roomCard}>
+            <h3 style={styles.roomTitle}>{room.name}</h3>
+            <p style={styles.roomDesc}>
+              Join the conversation on {room.name.toLowerCase()}.
+            </p>
+            <button style={styles.joinBtn}>Enter</button>
           </div>
-          <div style={styles.messageInput}>
-            <input
-              type="text"
-              placeholder="Type message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              style={styles.input}
-            />
-            <button onClick={sendMessage} style={styles.button}>Send</button>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
 
 const styles = {
-  container: {
-    padding: '2rem'
-  },
-  joinBox: {
+  roomList: {
     display: 'flex',
-    gap: '10px'
+    flexWrap: 'wrap',
+    gap: '1rem'
   },
-  chatBox: {
-    marginTop: '1rem',
+  roomCard: {
+    flex: '1 1 250px',
+    backgroundColor: 'var(--card)',
     padding: '1rem',
-    background: '#f2f2f2',
-    height: '300px',
-    overflowY: 'auto',
-    borderRadius: '5px'
+    borderRadius: '8px',
+    boxShadow: '0 0 6px rgba(0,0,0,0.15)',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
   },
-  message: {
+  roomTitle: {
+    fontSize: '1.25rem',
+    color: 'var(--accent)',
     marginBottom: '0.5rem'
   },
-  messageInput: {
+  roomDesc: {
+    flex: 1,
+    fontSize: '0.95rem',
+    color: 'var(--text)'
+  },
+  joinBtn: {
     marginTop: '1rem',
-    display: 'flex',
-    gap: '10px'
-  },
-  input: {
-    padding: '10px',
-    flex: 1
-  },
-  button: {
-    padding: '10px 15px',
-    background: '#282c34',
+    padding: '0.5rem 1rem',
+    backgroundColor: 'var(--accent)',
     color: '#fff',
     border: 'none',
+    borderRadius: '4px',
     cursor: 'pointer'
   }
 };

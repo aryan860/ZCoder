@@ -1,42 +1,92 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-
-const mockProblems = {
-  1: {
-    title: 'Two Sum',
-    description: 'Given an array of integers, return indices of the two numbers such that they add up to a specific target.',
-    tags: ['Array', 'HashMap'],
-    input: 'nums = [2,7,11,15], target = 9',
-    output: '[0,1]',
-    constraints: [
-      '2 <= nums.length <= 10^4',
-      '-10^9 <= nums[i] <= 10^9',
-      '-10^9 <= target <= 10^9',
-      'Only one valid answer exists.'
-    ]
-  },
-  // Add more problems here
-};
+// === src/pages/ProblemDetails.jsx ===
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const ProblemDetails = () => {
-  const { id } = useParams();
-  const problem = mockProblems[id];
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const { toggleBookmark, isBookmarked } = useAuth();
+  const [problem, setProblem] = useState(null);
+
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/api/problems/${slug}`);
+        if (!res.ok) throw new Error('Problem not found');
+        const data = await res.json();
+        setProblem(data);
+      } catch (err) {
+        console.error(err);
+        setProblem(null);
+      }
+    };
+
+    fetchProblem();
+  }, [slug]);
+
 
   if (!problem) return <div className="container">Problem not found.</div>;
 
   return (
     <div className="container">
       <h2>{problem.title}</h2>
-      <p><strong>Description:</strong> {problem.description}</p>
-      <p><strong>Input:</strong> {problem.input}</p>
-      <p><strong>Output:</strong> {problem.output}</p>
-      <p><strong>Constraints:</strong></p>
+      <p style={styles.text}><strong>Description:</strong> {problem.description}</p>
+      <p style={styles.text}><strong>Input:</strong> {problem.input}</p>
+      <p style={styles.text}><strong>Output:</strong> {problem.output}</p>
+      <p style={styles.text}><strong>Constraints:</strong></p>
       <ul>
-        {problem.constraints.map((c, i) => <li key={i}>{c}</li>)}
+        {(problem.constraints || []).map((line, i) => (
+          <li key={i} style={styles.text}>{line}</li>
+        ))}
       </ul>
-      <p><strong>Tags:</strong> {problem.tags.join(', ')}</p>
+      <p style={styles.text}><strong>Tags:</strong> {(problem.tags || []).join(', ')}</p>
+      <div style={styles.actions}>
+        <button
+          onClick={() => navigate(`/editor?slug=${problem.slug}`)}
+          style={styles.solveBtn}
+        >
+          Solve
+        </button>
+        <button
+          onClick={() => toggleBookmark(problem._id)}
+          style={styles.bookmarkBtn}
+        >
+          {isBookmarked(problem._id) ? '🔖 Bookmarked' : '📑 Bookmark'}
+        </button>
+      </div>
     </div>
   );
+};
+
+const styles = {
+  text: {
+    margin: '0.5rem 0',
+    color: 'var(--text)'
+  },
+  actions: {
+    marginTop: '1.5rem',
+    display: 'flex',
+    gap: '1rem'
+  },
+  solveBtn: {
+    backgroundColor: '#00bcd4',
+    color: '#000',
+    padding: '0.6rem 1.2rem',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    border: 'none',
+    cursor: 'pointer'
+  },
+  bookmarkBtn: {
+    backgroundColor: 'transparent',
+    color: 'var(--text)',
+    fontSize: '1rem',
+    border: '1px solid #888',
+    borderRadius: '5px',
+    padding: '0.6rem 1rem',
+    cursor: 'pointer'
+  }
 };
 
 export default ProblemDetails;

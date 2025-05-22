@@ -36,7 +36,7 @@ router.get('/me', auth, async (req, res) => {
   const user = await User.findById(req.user.id).populate('bookmarks');
   if (!user) return res.status(404).json({ message: 'User not found' });
 
-  res.json({ email: user.email, bookmarks: user.bookmarks });
+  res.json(user);
 });
 
 router.post('/bookmark/:id', auth, async (req, res) => {
@@ -51,6 +51,7 @@ router.post('/bookmark/:id', auth, async (req, res) => {
   }
 
   await user.save();
+  await user.populate('bookmarks', 'title slug');
   res.json({ bookmarks: user.bookmarks });
 });
 

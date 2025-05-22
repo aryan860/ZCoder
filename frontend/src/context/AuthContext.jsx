@@ -19,9 +19,11 @@ export const AuthProvider = ({ children }) => {
       const profile = await res.json();
 
       setUser({
-        email: profile.email,
-        bookmarks: profile.bookmarks.map(p => p._id),
-      });
+  email: profile.email,
+  bookmarks: profile.bookmarks
+});
+
+
     } catch (error) {
       console.error('Login error:', error.message);
       setUser(null);
@@ -46,7 +48,9 @@ export const AuthProvider = ({ children }) => {
     setUser(prev => ({ ...prev, bookmarks: data.bookmarks }));
   };
 
-  const isBookmarked = (id) => user?.bookmarks?.includes(id);
+  const isBookmarked = (id) =>
+  user?.bookmarks?.some(b => (typeof b === 'object' ? b._id : b)?.toString() === id?.toString());
+
 
   useEffect(() => {
     login();
