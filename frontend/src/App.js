@@ -21,6 +21,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/editor" element={<Editor />} />
         <Route path="/rooms" element={<Rooms />} />
+        <Route path="/rooms/:slug" element={<Rooms />} />
         <Route path="/bookmarks" element={<Bookmarks />} />
         <Route path="/problems" element={<Problem />} />
         <Route path="/problems/:slug" element={<ProblemDetails />} />
