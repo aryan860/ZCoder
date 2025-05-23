@@ -11,7 +11,6 @@ const Navbar = () => {
     document.body.setAttribute('data-theme', saved);
   }, []);
 
-  // Hide navbar on /auth
   if (location.pathname === '/auth') return null;
 
   const toggleTheme = () => {

@@ -1,7 +1,7 @@
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 6000 });
-const rooms = {}; // { roomSlug: Set of sockets }
+const rooms = {};
 
 wss.on('connection', (socket) => {
   let currentRoom = null;
@@ -39,4 +39,4 @@ wss.on('connection', (socket) => {
   });
 });
 
-console.log('🧩 WebSocket server running on ws://localhost:5000');
+console.log('WebSocket server running on ws://localhost:6000');

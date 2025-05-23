@@ -6,7 +6,7 @@ const Problem = require('../models/Problem');
 
 // Add a bookmark
 router.post('/', authMiddleware, async (req, res) => {
-  const userId = req.user;  // from auth middleware
+  const userId = req.user;
   const { problemId } = req.body;
 
   if (!problemId) {

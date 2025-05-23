@@ -26,7 +26,6 @@ const io = new Server(server, {
   }
 });
 
-// WebSocket Authentication Middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) return next(new Error('Authentication error'));
