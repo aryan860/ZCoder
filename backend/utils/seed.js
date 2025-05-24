@@ -237,7 +237,7 @@ async function seed() {
   }));
 
   await Problem.insertMany(problemsWithSlug);
-  console.log('✅ Seeded 20+ problems!');
+  console.log('Seeded problems!');
   mongoose.disconnect();
 }
 

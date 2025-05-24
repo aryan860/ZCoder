@@ -40,7 +40,7 @@ io.use((socket, next) => {
 });
 
 io.on('connection', socket => {
-  console.log(`✅ Authenticated socket: ${socket.user.id}`);
+  console.log(`Authenticated socket: ${socket.user.id}`);
 
   socket.on('join_room', roomId => {
     socket.join(roomId);
@@ -56,7 +56,7 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', () => {
-    console.log(`❌ Socket ${socket.user.id} disconnected`);
+    console.log(`Socket ${socket.user.id} disconnected`);
   });
 });
 
